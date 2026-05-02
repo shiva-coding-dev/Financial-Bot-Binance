@@ -132,3 +132,33 @@ Logs include timestamps, log level, API request metadata, API responses, validat
 - Quantity and price precision are left to Binance exchange filters. If the values are invalid for the selected symbol, Binance returns a clear API error.
 - The CLI supports `MARKET` and `LIMIT` orders as required by the assignment.
 
+## Codebase Functionality Breakdown
+
+The project follows a clean, modular structure. Below is an explanation of every core module:
+
+### 1. `cli.py` (Entry Point)
+This is the main user interface. It uses Python's `argparse` to capture command-line arguments (symbol, side, type, quantity, price), passes them to the validation layer, and orchestrates the order request through the `OrderService`. It also neatly formats the output response for the terminal.
+
+### 2. `bot/client.py` (Binance API Client)
+The `BinanceFuturesClient` is responsible for secure HTTP communication with Binance.
+- **HMAC SHA256 Signing:** It handles the complex logic of signing requests using your `BINANCE_API_SECRET`, appending timestamps, and managing `recvWindow` for secure execution.
+- **Routing:** Exposes simple methods like `place_market_order()` and `place_limit_order()`.
+- **Error Handling:** It captures raw HTTP errors and unexpected JSON responses, wrapping them into a clean `BinanceAPIError`.
+
+### 3. `bot/orders.py` (Business Logic)
+This file houses the `OrderService` and data classes (`OrderRequest`, `OrderResult`).
+- It acts as the "brain" between the CLI and the API Client. 
+- It routes the structured `OrderRequest` to the correct endpoint (Market vs Limit) based on the order type, and returns a sanitized `OrderResult` that the CLI can easily print.
+
+### 4. `bot/validators.py` (Data Sanitization)
+This module ensures bad data never reaches Binance.
+- Validates the trading symbol (e.g., must be 5-20 uppercase letters).
+- Checks valid sides (`BUY`, `SELL`) and order types (`MARKET`, `LIMIT`).
+- Uses Python's `Decimal` to strictly validate prices and quantities, ensuring they are positive numbers and properly formatted strings to avoid floating-point errors.
+
+### 5. `bot/exceptions.py` (Custom Errors)
+Contains custom exceptions like `ValidationError`, `ConfigurationError`, and `BinanceAPIError`. This ensures that when the bot fails, it gives you a human-readable reason rather than crashing with an ugly traceback stack.
+
+### 6. `bot/logging_config.py` (Audit Logging)
+Automatically provisions a `logs/` directory and records all background operations to `app.log`. This includes everything from input validation to raw Binance API responses, allowing developers to debug issues if an order is unexpectedly rejected.
+
