@@ -162,3 +162,35 @@ Contains custom exceptions like `ValidationError`, `ConfigurationError`, and `Bi
 ### 6. `bot/logging_config.py` (Audit Logging)
 Automatically provisions a `logs/` directory and records all background operations to `app.log`. This includes everything from input validation to raw Binance API responses, allowing developers to debug issues if an order is unexpectedly rejected.
 
+## Web Application (Frontend & API)
+
+The bot has been upgraded from a simple CLI tool into a fully functional web application featuring a stunning Glassmorphism UI.
+
+### 1. `api.py` (FastAPI Backend)
+A lightweight web server was added using **FastAPI** and **Uvicorn** to expose the bot's functionality to the web.
+- Exposes a `POST /api/order` endpoint.
+- Connects directly to the existing robust validation and API client routing logic.
+- Serves as the bridge between the React frontend and the Binance API.
+
+### 2. `frontend/` (React + Vite Web App)
+A modern, blazing-fast frontend built with **React** and **Vite**.
+- **Aesthetic**: Custom "Glassmorphism" styling (`index.css`) featuring a dark-mode theme, blurred frosted glass panels, glowing accents, and smooth CSS animations.
+- **Components**: The unified dashboard (`App.jsx`) provides intuitive inputs for Symbol, Side, Order Type, Quantity, and Price.
+- **Real-time Feedback**: Automatically displays loading spinners during requests and animated success or error states with detailed order summaries directly in the browser.
+
+### Running the Web App
+
+**1. Start the Backend:**
+```bash
+source .venv/bin/activate
+uvicorn api:app --host 0.0.0.0 --port 8000
+```
+
+**2. Start the Frontend (in a new terminal):**
+```bash
+cd frontend
+npm run dev
+```
+
+**3. Open the UI:**
+Navigate to `http://localhost:5173` in your browser to start trading!
